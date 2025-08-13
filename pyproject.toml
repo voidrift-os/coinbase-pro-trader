@@ -1,0 +1,106 @@
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+include = '\.pyi?$'
+extend-exclude = '''
+(
+  \.git
+  | \.mypy_cache
+  | \.ruff_cache
+  | \.venv
+  | venv
+  | build
+  | dist
+)
+'''
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+src = ["pro_coinbase_bot", "tests"]
+extend-exclude = [
+  ".git",
+  ".mypy_cache",
+  ".ruff_cache",
+  ".venv",
+  "venv",
+  "build",
+  "dist",
+  ".windsurf",
+]
+
+[tool.ruff.lint]
+# Keep a pragmatic, CI-friendly rule set.
+# - E,F: pycodestyle/pyflakes (errors)
+# - I: import sorting
+# - B: flake8-bugbear
+# - UP: pyupgrade
+# - W: pycodestyle warnings
+# - C90: mccabe complexity (basic)
+# - RUF100: unused noqa
+select = ["E", "F", "I", "B", "UP", "W", "C90", "RUF100"]
+ignore = []
+fixable = ["ALL"]
+unfixable = []
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+force-sort-within-sections = true
+# Populate third-party for stable groupings; first-party can be inferred via `src`.
+known-first-party = []
+known-third-party = ["ccxt", "pandas", "numpy", "requests", "yaml", "dotenv"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.mypy]
+python_version = "3.11"
+
+# Strictness & safety
+warn_return_any = true
+warn_unused_configs = true
+warn_unused_ignores = true
+no_implicit_optional = true
+strict_equality = true
+
+# Disallow untyped code in new/changed parts
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+
+# Tighten Any usage
+disallow_untyped_calls = true
+disallow_any_generics = true
+
+# Output formatting
+pretty = true
+show_error_codes = true
+show_column_numbers = true
+
+# Performance & environment
+incremental = true
+namespace_packages = true
+explicit_package_bases = false
+
+# Keep default (fail) but relax per-module for untyped deps below
+ignore_missing_imports = false
+
+# Ignore vendor/temporary/build artifacts
+exclude = '(^\.venv|^venv|^build|^dist|^\.mypy_cache|^\.ruff_cache|^\.windsurf)'
+
+# Third-party packages that may lack complete type stubs in many environments
+[[tool.mypy.overrides]]
+module = [
+  "ccxt",
+  "ccxt.*",
+  "dotenv",
+  "dotenv.*",
+  "yaml",
+  "pandas",
+  "pandas.*",
+]
+ignore_missing_imports = true
+
