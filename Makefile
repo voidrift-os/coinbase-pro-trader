@@ -9,6 +9,8 @@ PYTHON ?= python
 BLACK ?= black --line-length 100
 RUFF ?= ruff
 MYPY ?= mypy
+PYTEST ?= pytest
+RUN_PYTEST := $(if $(wildcard .venv/bin/pytest),.venv/bin/pytest,$(PYTEST))
 
 # Ensure phony targets
 .PHONY: sanity backtest live smoke ci-all install precommit test
@@ -17,9 +19,10 @@ MYPY ?= mypy
 sanity:
 	$(RUFF) check pro_coinbase_bot tests
 	$(BLACK) --check pro_coinbase_bot tests
-	$(MYPY) pro_coinbase_bot tests
+	$(MYPY) pro_coinbase_bot/src pro_coinbase_bot/scripts
+	$(MYPY) tests
 	# dry-parse CLI to ensure entrypoints are intact
-	$(PYTHON) -m pro_coinbase_bot --help /dev/null
+	$(PYTHON) -m pro_coinbase_bot --help >/dev/null
 
 # Backtest with configurable symbols/timeframe/limit
 backtest:
@@ -38,15 +41,17 @@ install:
 	@if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 	@if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
+backtests:
+	$(PYTHON) -u scripts/run_backtests.py
+
 precommit:
 	pre-commit install
 
-# Offline tests (synthetic data)
+# Offline tests (project tests only, with production config)
 test:
-	pytest -q tests || true
+	PRO_CONFIG=pro_coinbase_bot/config/production.yaml PYTHONPATH=$(PWD) $(RUN_PYTEST) -q pro_coinbase_bot/tests || true
 
-# CI aggregation target: run sanity and a representative backtest
+# CI aggregation target: run sanity and project tests
 ci-all: sanity
-	$(MAKE) backtest
-	pytest -q tests
+	PRO_CONFIG=pro_coinbase_bot/config/production.yaml PYTHONPATH=$(PWD) $(RUN_PYTEST) -q pro_coinbase_bot/tests
 

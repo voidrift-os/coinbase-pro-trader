@@ -43,6 +43,33 @@ Local setup
 - pre-commit install
 - Run checks locally: pre-commit run --all-files
 
+## Development & CI
+
+### Development Commands
+- Format code: `make fmt` (Black + Ruff)
+- Lint code: `make lint`
+- Type check: `make type` (mypy)
+- Run tests: `make test`
+- Run full CI: `make ci-all`
+
+### Test Markers
+We use a custom `performance` marker for slow/stress tests.
+- Exclude perf tests (default): `pytest -m "not performance"`
+- Run only perf tests: `pytest -m performance`
+
+### Backtests
+Run the multi-timeframe/symbol sweep and generate CSV + Markdown summaries:
+
+```bash
+make backtests
+# results in backtests/results.csv and backtests/results.md
+```
+
+What you’ll get
+- backtests/results.csv — rows for each (symbol, timeframe)
+- backtests/results.md — aggregate + per-symbol table for PRs
+- backtests/results.json — machine-readable for dashboards
+
 Optional MCP integrations
 - See docs/mcp/ for safe usage of TradingView alerts and other MCP servers. Execution must always flow through the CLI so risk controls are enforced.
 - See docs/ai-ides.md for integrating AI-powered IDEs and CDP docs via MCP (docs-only).
